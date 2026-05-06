@@ -1,0 +1,6 @@
+pandas==2.2.2
+snowflake-connector-python==3.10.0
+apache-airflow-providers-snowflake==5.4.0
+pyarrow==16.1.0
+apache-airflow-providers-snowflake
+snowflake-connector-python[pandas]

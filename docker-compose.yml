@@ -1,0 +1,61 @@
+version: '3.8'
+
+x-airflow-common:
+  &airflow-common
+  # Instead of using the vanilla image, we tell it to build from our custom Dockerfile
+  build: . 
+  environment:
+    - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False # We don't want the clutter of default tutorial DAGs
+  volumes:
+    # We map your Mac's local folders directly into the Docker container
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./data:/opt/airflow/data  # <-- ADDED THIS BACK FOR BINANCE!
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  # The Memory: Stores all your pipeline history
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+
+  # The Brain: Checks the time and triggers your Medallion layers
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+
+  # The Face: The UI you look at on localhost:8080
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # The Installer: Runs once to set up the database, then shuts down
+  # The Installer: Runs once to set up the database, then shuts down
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      # We explicitly remind it to use Postgres here!
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - _AIRFLOW_DB_MIGRATE=true
+      - _AIRFLOW_WWW_USER_CREATE=true
+      - _AIRFLOW_WWW_USER_USERNAME=admin
+      - _AIRFLOW_WWW_USER_PASSWORD=admin

@@ -1,0 +1,16 @@
+# Environments and Secrets
+.env
+.venv/
+__pycache__/
+
+# Airflow specific
+logs/
+plugins/
+
+# Local Data (Never push raw or parquet data to Git!)
+data/
+*.json
+*.parquet
+
+# OS specific
+.DS_Store
