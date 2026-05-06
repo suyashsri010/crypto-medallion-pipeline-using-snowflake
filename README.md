@@ -4,7 +4,7 @@ An automated ELT pipeline implementing a Medallion architecture for high-frequen
 
 ## Architecture
 
-![CipherStream Architecture](assets/cipherstream_diagram.png)
+![CipherStream Architecture](cipherstream_diagram.png)
 
 The pipeline follows a standard Bronze/Silver/Gold data progression:
 
