@@ -4,6 +4,8 @@ An automated ELT pipeline implementing a Medallion architecture for high-frequen
 
 ## Architecture
 
+![CipherStream Architecture](assets/cipherstream_diagram.png)
+
 The pipeline follows a standard Bronze/Silver/Gold data progression:
 
 1. **Bronze (Ingestion):** Python workers poll the Binance REST API (1-minute intervals). Raw JSON payloads are persisted locally to guarantee initial state preservation.
